@@ -1,19 +1,19 @@
 'use strict';
 
-const photos = [];
-const commentsArray = [];
+const PHOTOS = [];
 const pictures = document.querySelector(`.pictures`);
 const template = document.querySelector(`#picture`).content.querySelector(`a`);
-const likes = template.querySelector(`.picture__likes`);
-const comments = template.querySelector(`.picture__comments`);
-const img = template.querySelector(`img`);
 
 const getRandomInt = (min, max) => {
   const rand = min + Math.random() * (max + 1 - min);
   return Math.floor(rand);
 };
 
-const names = [
+const getRandomData = (array) => {
+  return array[getRandomInt(0, array.length - 1)];
+};
+
+const NAMES = [
   `Максим`,
   `Тарас`,
   `Чингиз`,
@@ -26,7 +26,7 @@ const names = [
   `Роберт`,
 ];
 
-const messages = [
+const MESSAGES = [
   `Всё отлично!`,
   `В целом всё неплохо. Но не всё.`,
   `Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.`,
@@ -35,28 +35,28 @@ const messages = [
   `Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!`,
 ];
 
-const generateCommentArray = () => {
-  for (let i = 0; i < 5; i++) {
-    commentsArray.push(
+const getRandomComments = () => {
+  const COMMENTS = [];
+  for (let i = 0; i < getRandomInt(0, 10); i++) {
+    COMMENTS.push(
         {
           avatar: `img/avatar-${getRandomInt(1, 6)}.svg`,
-          message: messages[getRandomInt(0, messages.length - 1)],
-          name: names[getRandomInt(0, names.length - 1)]
+          message: getRandomData(MESSAGES),
+          name: getRandomData(NAMES)
         }
     );
   }
+  return COMMENTS;
 };
 
-generateCommentArray();
-
-let generatePhotosArray = () => {
+const generatePhotosArray = () => {
   for (let i = 1; i <= 25; i++) {
-    photos.push(
+    PHOTOS.push(
         {
           url: `photos/${i}.jpg`,
           description: ``,
           likes: `${getRandomInt(15, 200)}`,
-          comments: commentsArray[i],
+          comments: getRandomComments(),
         }
     );
 
@@ -65,14 +65,18 @@ let generatePhotosArray = () => {
 
 generatePhotosArray();
 
-let generatePhotos = () => {
+const fragment = document.createDocumentFragment();
+
+const generatePhotos = () => {
   for (let i = 0; i < 25; i++) {
-    img.src = photos[i].url;
-    likes.textContent = photos[i].likes;
-    comments.textContent = getRandomInt(0, commentsArray.length);
     const element = template.cloneNode(true);
-    pictures.appendChild(element);
+    element.querySelector(`img`).src = PHOTOS[i].url;
+    element.querySelector(`.picture__likes`).textContent = PHOTOS[i].likes;
+    element.querySelector(`.picture__comments`).textContent = PHOTOS[i].comments.length;
+    fragment.appendChild(element);
   }
+
+  pictures.appendChild(fragment);
 };
 
 generatePhotos();
