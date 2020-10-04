@@ -1,10 +1,6 @@
 'use strict';
 
-const photos = [];
 const PHOTOS_COUNT = 25;
-const pictures = document.querySelector(`.pictures`);
-const template = document.querySelector(`#picture`).content.querySelector(`a`);
-const fragment = document.createDocumentFragment();
 const NAMES = [
   `Максим`,
   `Тарас`,
@@ -25,6 +21,10 @@ const MESSAGES = [
   `Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.`,
   `Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!`,
 ];
+const pictures = document.querySelector(`.pictures`);
+const template = document.querySelector(`#picture`).content.querySelector(`a`);
+const fragment = document.createDocumentFragment();
+const photos = [];
 
 const getRandomInt = (min, max) => {
   const rand = min + Math.random() * (max + 1 - min);
@@ -66,7 +66,7 @@ const generatePhotosArray = () => {
 generatePhotosArray();
 
 const generatePhotos = (data) => {
-  for (let i = 0; i < PHOTOS_COUNT; i++) {
+  for (let i = 0; i < data.length; i++) {
     const element = template.cloneNode(true);
     element.querySelector(`img`).src = data[i].url;
     element.querySelector(`.picture__likes`).textContent = data[i].likes;
