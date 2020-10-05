@@ -77,3 +77,38 @@ const generatePhotos = (data) => {
 };
 
 generatePhotos(photos);
+
+const bigPicture = document.querySelector(`.big-picture`);
+const bigPictureImg = bigPicture.querySelector(`img`);
+const bigPictureLikes = bigPicture.querySelector(`.likes-count`);
+const bigPictureCommentsCount = bigPicture.querySelector(`.comments-count`);
+bigPicture.classList.remove(`hidden`);
+bigPictureImg.src = photos[0].url;
+bigPictureLikes.textContent = photos[0].likes;
+bigPictureCommentsCount.textContent = photos[0].comments.length;
+
+const commentCountBlock = bigPicture.querySelector(`.social__comment-count`);
+commentCountBlock.classList.add(`hidden`);
+const commentsLoader = bigPicture.querySelector(`.comments-loader`);
+commentsLoader.classList.add(`hidden`);
+
+document.querySelector(`body`).classList.add(`modal-open`);
+
+const commentsList = document.querySelector(`.social__comments`);
+const bigPictureComment = document.querySelector(`.social__comment`);
+
+const insertComments = () => {
+  for (let i = 0; i < photos[0].comments.length; i++) {
+    const newComment = bigPictureComment.cloneNode(true);
+    const newCommentImg = newComment.querySelector(`img`);
+    const newCommentText = newComment.querySelector(`.social__text`);
+    const bigPictureDescription = bigPicture.querySelector(`.social__caption`);
+    bigPictureDescription.textContent = photos[0].description;
+    newCommentImg.src = photos[0].comments[i].avatar;
+    newCommentImg.alt = photos[0].comments[i].name;
+    newCommentText.textContent = photos[0].comments[i].message;
+    commentsList.appendChild(newComment);
+  }
+};
+
+insertComments();
