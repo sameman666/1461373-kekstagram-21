@@ -118,11 +118,11 @@ const imgEditor = document.querySelector(`.img-upload__overlay`);
 const closeImgEditorButton = document.querySelector(`#upload-cancel`);
 
 
-uploadFileButton.onchange = () => {
+uploadFileButton.addEventListener(`change`, () => {
   imgEditor.classList.remove(`hidden`);
   document.querySelector(`body`).classList.add(`modal-open`);
   document.addEventListener(`keydown`, onEditorEscPress);
-};
+});
 
 const onEditorEscPress = (evt) => {
   if (evt.key === `Escape`) {
@@ -137,8 +137,9 @@ const onEditorEscPress = (evt) => {
 const closeImgEditor = () => {
   imgEditor.classList.add(`hidden`);
   document.querySelector(`body`).classList.remove(`modal-open`);
-  SCALE_VALUE = 100;
-  imgEditorPreview.style.transform = `scale(${SCALE_VALUE / 100})`;
+  scaleValue = 100;
+  imgEditorPreview.style.transform = `scale(${scaleValue / 100})`;
+  document.removeEventListener(`keydown`, onEditorEscPress);
 };
 
 closeImgEditorButton.addEventListener(`click`, () => {
@@ -152,24 +153,29 @@ const scaleControlBigger = imgEditor.querySelector(`.scale__control--bigger`);
 const scaleControlValue = imgEditor.querySelector(`.scale__control--value`);
 const imgEditorPreview = imgEditor.querySelector(`.img-upload__preview img`);
 const effectLevel = imgEditor.querySelector(`.img-upload__effect-level`);
-let SCALE_VALUE = 100;
+const effectsList = imgEditor.querySelector(`.effects__list`);
+const DEFAULT_SCALE_VALUE = 100;
+let scaleValue = DEFAULT_SCALE_VALUE;
 const SCALE_STEP = 25;
-const MIN_SCALE_VALUE = 0;
+const MIN_SCALE_VALUE = 25;
 const MAX_SCALE_VALUE = 100;
 
+const applySize = () => {
+  imgEditorPreview.style.transform = `scale(${scaleValue / 100})`;
+  scaleControlValue.value = scaleValue + `%`;
+};
+
 scaleControlSmaller.addEventListener(`click`, () => {
-  if (SCALE_VALUE > MIN_SCALE_VALUE) {
-    SCALE_VALUE = SCALE_VALUE - SCALE_STEP;
-    imgEditorPreview.style.transform = `scale(${SCALE_VALUE / 100})`;
-    scaleControlValue.value = SCALE_VALUE + `%`;
+  if (scaleValue > MIN_SCALE_VALUE) {
+    scaleValue = scaleValue - SCALE_STEP;
+    applySize();
   }
 });
 
 scaleControlBigger.addEventListener(`click`, () => {
-  if (SCALE_VALUE < MAX_SCALE_VALUE) {
-    SCALE_VALUE = SCALE_VALUE + SCALE_STEP;
-    imgEditorPreview.style.transform = `scale(${SCALE_VALUE / 100})`;
-    scaleControlValue.value = SCALE_VALUE + `%`;
+  if (scaleValue < MAX_SCALE_VALUE) {
+    scaleValue = scaleValue + SCALE_STEP;
+    applySize();
   }
 });
 
@@ -181,39 +187,26 @@ const effectSepia = imgEditor.querySelector(`#effect-sepia`);
 const effectMarvin = imgEditor.querySelector(`#effect-marvin`);
 const effectPhobos = imgEditor.querySelector(`#effect-phobos`);
 const effectHeat = imgEditor.querySelector(`#effect-heat`);
-
-const applyEffect = (effect) => {
-  imgEditorPreview.className = ``;
-  imgEditorPreview.style.filter = ``;
-  imgEditorPreview.classList.add(effect);
-  effectLevel.classList.remove(`hidden`);
-};
+let currentEffect;
 
 effectLevel.classList.add(`hidden`);
 
-effectNone.addEventListener(`click`, () => {
-  applyEffect(`effects__preview--none`);
-  effectLevel.classList.add(`hidden`);
-});
+const applyEffect = (effect) => {
+  if (currentEffect) {
+    imgEditorPreview.classList.remove(currentEffect);
+  }
+  imgEditorPreview.style.filter = ``;
+  imgEditorPreview.classList.add(effect);
+  currentEffect = effect;
+  if (currentEffect === `effects__preview--none`) {
+    effectLevel.classList.add(`hidden`);
+  } else {
+    effectLevel.classList.remove(`hidden`);
+  }
+};
 
-effectChrome.addEventListener(`click`, () => {
-  applyEffect(`effects__preview--chrome`);
-});
-
-effectSepia.addEventListener(`click`, () => {
-  applyEffect(`effects__preview--sepia`);
-});
-
-effectMarvin.addEventListener(`click`, () => {
-  applyEffect(`effects__preview--marvin`);
-});
-
-effectPhobos.addEventListener(`click`, () => {
-  applyEffect(`effects__preview--phobos`);
-});
-
-effectHeat.addEventListener(`click`, () => {
-  applyEffect(`effects__preview--heat`);
+effectsList.addEventListener(`change`, (evt) => {
+  applyEffect(`effects__preview--${evt.target.value}`);
 });
 
 const effectLevelPin = imgEditor.querySelector(`.effect-level__pin`);
@@ -221,42 +214,50 @@ const effectLevelValue = imgEditor.querySelector(`.effect-level__value`);
 const EFFECT_LEVEL_MAX = 3;
 const EFFECT_LEVEL_MIN = 1;
 
-effectLevelPin.onmouseup = () => {
-  effectLevelValue.value = Math.round(effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth * 100);
-  if (effectChrome.checked) {
-    imgEditorPreview.style.filter = ``;
-    imgEditorPreview.style.filter = `grayscale(${effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth})`;
-  } else if (effectSepia.checked) {
-    imgEditorPreview.style.filter = ``;
-    imgEditorPreview.style.filter = `sepia(${effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth})`;
-  } else if (effectMarvin.checked) {
-    imgEditorPreview.style.filter = ``;
-    imgEditorPreview.style.filter = `invert(${effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth * 100}%)`;
-  } else if (effectPhobos.checked) {
-    imgEditorPreview.style.filter = ``;
-    imgEditorPreview.style.filter = `blur(${effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth * EFFECT_LEVEL_MAX}px)`;
-  } else if (effectHeat.checked) {
-    imgEditorPreview.style.filter = ``;
-    imgEditorPreview.style.filter = `brightness(${(EFFECT_LEVEL_MAX - EFFECT_LEVEL_MIN) * effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth + EFFECT_LEVEL_MIN})`;
-  } else if (effectNone.checked) {
-    imgEditorPreview.style.filter = ``;
-  }
+const imgFilter = (value) => {
+  imgEditorPreview.style.filter = value;
 };
+
+effectLevelPin.addEventListener(`mouseup`, () => {
+  effectLevelValue.value = Math.round(effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth * 100);
+  imgEditorPreview.style.filter = ``;
+  switch (true) {
+    case effectChrome.checked:
+      imgFilter(`grayscale(${effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth})`);
+      break;
+    case effectSepia.checked:
+      imgFilter(`sepia(${effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth})`);
+      break;
+    case effectMarvin.checked:
+      imgFilter(`invert(${effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth * 100}%)`);
+      break;
+    case effectPhobos.checked:
+      imgFilter(`blur(${effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth * EFFECT_LEVEL_MAX}px)`);
+      break;
+    case effectHeat.checked:
+      imgFilter(`brightness(${(EFFECT_LEVEL_MAX - EFFECT_LEVEL_MIN) * effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth + EFFECT_LEVEL_MIN})`);
+      break;
+    case effectNone.checked:
+      imgFilter(``);
+  }
+});
 
 // Хэштеги
 
 const hashtagInput = imgEditor.querySelector(`.text__hashtags`);
 const commentInput = imgEditor.querySelector(`.text__description`);
+const REG = /^#[a-zA_Zа-яА-ЯёЁ0-9]{1,19}$/;
+const HASHTAG_AMOUNT_MAX = 5;
+const HASHTAH_LENGTH_MAX = 20;
 
 hashtagInput.addEventListener(`input`, () => {
   const hashTags = hashtagInput.value.toLowerCase().trim().split(` `);
-  const REG = /^#[a-zA_Zа-яА-ЯёЁ0-9]{1,19}$/;
   const keys = [];
-  if (hashTags.length > 5) {
+  if (hashTags.length > HASHTAG_AMOUNT_MAX) {
     hashtagInput.setCustomValidity(`Введите не более 5 хэштегов`);
   } else {
     for (let i = 0; i < hashTags.length; i++) {
-      if (hashTags[i].length > 20) {
+      if (hashTags[i].length > HASHTAH_LENGTH_MAX) {
         hashtagInput.setCustomValidity(`Длина хэштега должна быть не более 20 симв.`);
         break;
       } else if (hashTags[i] === `#`) {
