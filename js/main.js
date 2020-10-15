@@ -1,6 +1,15 @@
 'use strict';
 
 const PHOTOS_COUNT = 25;
+const DEFAULT_SCALE_VALUE = 100;
+const SCALE_STEP = 25;
+const MIN_SCALE_VALUE = 25;
+const MAX_SCALE_VALUE = 100;
+const EFFECT_LEVEL_MAX = 3;
+const EFFECT_LEVEL_MIN = 1;
+const REG = /^#[a-zA_Zа-яА-ЯёЁ0-9]{1,19}$/;
+const HASHTAG_AMOUNT_MAX = 5;
+const HASHTAH_LENGTH_MAX = 20;
 const NAMES = [
   `Максим`,
   `Тарас`,
@@ -137,8 +146,9 @@ const onEditorEscPress = (evt) => {
 const closeImgEditor = () => {
   imgEditor.classList.add(`hidden`);
   document.querySelector(`body`).classList.remove(`modal-open`);
-  scaleValue = 100;
-  imgEditorPreview.style.transform = `scale(${scaleValue / 100})`;
+  scaleValue = DEFAULT_SCALE_VALUE;
+  applySize();
+  imgEditorPreview.className = ``;
   document.removeEventListener(`keydown`, onEditorEscPress);
 };
 
@@ -154,11 +164,7 @@ const scaleControlValue = imgEditor.querySelector(`.scale__control--value`);
 const imgEditorPreview = imgEditor.querySelector(`.img-upload__preview img`);
 const effectLevel = imgEditor.querySelector(`.img-upload__effect-level`);
 const effectsList = imgEditor.querySelector(`.effects__list`);
-const DEFAULT_SCALE_VALUE = 100;
 let scaleValue = DEFAULT_SCALE_VALUE;
-const SCALE_STEP = 25;
-const MIN_SCALE_VALUE = 25;
-const MAX_SCALE_VALUE = 100;
 
 const applySize = () => {
   imgEditorPreview.style.transform = `scale(${scaleValue / 100})`;
@@ -192,17 +198,13 @@ let currentEffect;
 effectLevel.classList.add(`hidden`);
 
 const applyEffect = (effect) => {
+  imgEditorPreview.style.filter = ``;
   if (currentEffect) {
     imgEditorPreview.classList.remove(currentEffect);
   }
-  imgEditorPreview.style.filter = ``;
   imgEditorPreview.classList.add(effect);
   currentEffect = effect;
-  if (currentEffect === `effects__preview--none`) {
-    effectLevel.classList.add(`hidden`);
-  } else {
-    effectLevel.classList.remove(`hidden`);
-  }
+  effectLevel.classList.toggle(`hidden`, currentEffect === `effects__preview--none`);
 };
 
 effectsList.addEventListener(`change`, (evt) => {
@@ -211,34 +213,32 @@ effectsList.addEventListener(`change`, (evt) => {
 
 const effectLevelPin = imgEditor.querySelector(`.effect-level__pin`);
 const effectLevelValue = imgEditor.querySelector(`.effect-level__value`);
-const EFFECT_LEVEL_MAX = 3;
-const EFFECT_LEVEL_MIN = 1;
 
-const imgFilter = (value) => {
+const applyImgFilter = (value) => {
   imgEditorPreview.style.filter = value;
 };
 
 effectLevelPin.addEventListener(`mouseup`, () => {
-  effectLevelValue.value = Math.round(effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth * 100);
-  imgEditorPreview.style.filter = ``;
+  const pinPosition = effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth;
+  effectLevelValue.value = Math.round(pinPosition * 100);
   switch (true) {
     case effectChrome.checked:
-      imgFilter(`grayscale(${effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth})`);
+      applyImgFilter(`grayscale(${pinPosition})`);
       break;
     case effectSepia.checked:
-      imgFilter(`sepia(${effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth})`);
+      applyImgFilter(`sepia(${pinPosition})`);
       break;
     case effectMarvin.checked:
-      imgFilter(`invert(${effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth * 100}%)`);
+      applyImgFilter(`invert(${pinPosition * 100}%)`);
       break;
     case effectPhobos.checked:
-      imgFilter(`blur(${effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth * EFFECT_LEVEL_MAX}px)`);
+      applyImgFilter(`blur(${pinPosition * EFFECT_LEVEL_MAX}px)`);
       break;
     case effectHeat.checked:
-      imgFilter(`brightness(${(EFFECT_LEVEL_MAX - EFFECT_LEVEL_MIN) * effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth + EFFECT_LEVEL_MIN})`);
+      applyImgFilter(`brightness(${(EFFECT_LEVEL_MAX - EFFECT_LEVEL_MIN) * pinPosition + EFFECT_LEVEL_MIN})`);
       break;
     case effectNone.checked:
-      imgFilter(``);
+      applyImgFilter(``);
   }
 });
 
@@ -246,9 +246,6 @@ effectLevelPin.addEventListener(`mouseup`, () => {
 
 const hashtagInput = imgEditor.querySelector(`.text__hashtags`);
 const commentInput = imgEditor.querySelector(`.text__description`);
-const REG = /^#[a-zA_Zа-яА-ЯёЁ0-9]{1,19}$/;
-const HASHTAG_AMOUNT_MAX = 5;
-const HASHTAH_LENGTH_MAX = 20;
 
 hashtagInput.addEventListener(`input`, () => {
   const hashTags = hashtagInput.value.toLowerCase().trim().split(` `);
