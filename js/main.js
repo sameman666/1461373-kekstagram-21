@@ -2,6 +2,7 @@
 
 const PHOTOS_COUNT = 25;
 const DEFAULT_SCALE_VALUE = 100;
+const DEFAULT_EFFECT_VALUE = 100;
 const SCALE_STEP = 25;
 const MIN_SCALE_VALUE = 25;
 const MAX_SCALE_VALUE = 100;
@@ -147,9 +148,12 @@ const closeImgEditor = () => {
   imgEditor.classList.add(`hidden`);
   document.querySelector(`body`).classList.remove(`modal-open`);
   scaleValue = DEFAULT_SCALE_VALUE;
-  applySize();
-  imgEditorPreview.className = ``;
   document.removeEventListener(`keydown`, onEditorEscPress);
+  applySize();
+  applyEffect(`none`);
+  hashtagInput.setCustomValidity(``);
+  hashtagInput.value = ``;
+  commentInput.value = ``;
 };
 
 closeImgEditorButton.addEventListener(`click`, () => {
@@ -198,13 +202,16 @@ let currentEffect;
 effectLevel.classList.add(`hidden`);
 
 const applyEffect = (effect) => {
-  imgEditorPreview.style.filter = ``;
+  applyImgFilter(``);
+  setEffectValue(DEFAULT_EFFECT_VALUE);
   if (currentEffect) {
     imgEditorPreview.classList.remove(currentEffect);
   }
-  imgEditorPreview.classList.add(effect);
+  if (effect !== `none`) {
+    imgEditorPreview.classList.add(effect);
+  }
   currentEffect = effect;
-  effectLevel.classList.toggle(`hidden`, currentEffect === `effects__preview--none`);
+  effectLevel.classList.toggle(`hidden`, currentEffect === `effects__preview--none` || currentEffect === `none`);
 };
 
 effectsList.addEventListener(`change`, (evt) => {
@@ -218,9 +225,13 @@ const applyImgFilter = (value) => {
   imgEditorPreview.style.filter = value;
 };
 
+const setEffectValue = (value) => {
+  effectLevelValue.value = value;
+};
+
 effectLevelPin.addEventListener(`mouseup`, () => {
   const pinPosition = effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth;
-  effectLevelValue.value = Math.round(pinPosition * 100);
+  setEffectValue(Math.round(pinPosition * 100));
   switch (true) {
     case effectChrome.checked:
       applyImgFilter(`grayscale(${pinPosition})`);
