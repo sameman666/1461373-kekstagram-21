@@ -11,6 +11,7 @@ const EFFECT_LEVEL_MIN = 1;
 const REG = /^#[a-zA_Zа-яА-ЯёЁ0-9]{1,19}$/;
 const HASHTAG_AMOUNT_MAX = 5;
 const HASHTAH_LENGTH_MAX = 20;
+const DEFAULT_EFFECT = `effects__preview--none`;
 const NAMES = [
   `Максим`,
   `Тарас`,
@@ -139,7 +140,6 @@ const onEditorEscPress = (evt) => {
     evt.preventDefault();
     if (evt.target !== hashtagInput || evt.target !== commentInput) {
       closeImgEditor();
-      uploadFileButton.value = ``;
     }
   }
 };
@@ -150,10 +150,11 @@ const closeImgEditor = () => {
   scaleValue = DEFAULT_SCALE_VALUE;
   document.removeEventListener(`keydown`, onEditorEscPress);
   applySize();
-  applyEffect(`none`);
+  applyEffect(DEFAULT_EFFECT);
   hashtagInput.setCustomValidity(``);
   hashtagInput.value = ``;
   commentInput.value = ``;
+  uploadFileButton.value = ``;
 };
 
 closeImgEditorButton.addEventListener(`click`, () => {
@@ -191,27 +192,26 @@ scaleControlBigger.addEventListener(`click`, () => {
 
 // Эффекты для изображения
 
-const effectNone = imgEditor.querySelector(`#effect-none`);
 const effectChrome = imgEditor.querySelector(`#effect-chrome`);
 const effectSepia = imgEditor.querySelector(`#effect-sepia`);
 const effectMarvin = imgEditor.querySelector(`#effect-marvin`);
 const effectPhobos = imgEditor.querySelector(`#effect-phobos`);
 const effectHeat = imgEditor.querySelector(`#effect-heat`);
-let currentEffect;
+let currentEffect = DEFAULT_EFFECT;
 
 effectLevel.classList.add(`hidden`);
 
 const applyEffect = (effect) => {
   applyImgFilter(``);
   setEffectValue(DEFAULT_EFFECT_VALUE);
-  if (currentEffect) {
+  if (currentEffect !== DEFAULT_EFFECT) {
     imgEditorPreview.classList.remove(currentEffect);
   }
-  if (effect !== `none`) {
+  if (effect !== DEFAULT_EFFECT) {
     imgEditorPreview.classList.add(effect);
   }
   currentEffect = effect;
-  effectLevel.classList.toggle(`hidden`, currentEffect === `effects__preview--none` || currentEffect === `none`);
+  effectLevel.classList.toggle(`hidden`, currentEffect === DEFAULT_EFFECT);
 };
 
 effectsList.addEventListener(`change`, (evt) => {
@@ -248,8 +248,6 @@ effectLevelPin.addEventListener(`mouseup`, () => {
     case effectHeat.checked:
       applyImgFilter(`brightness(${(EFFECT_LEVEL_MAX - EFFECT_LEVEL_MIN) * pinPosition + EFFECT_LEVEL_MIN})`);
       break;
-    case effectNone.checked:
-      applyImgFilter(``);
   }
 });
 
