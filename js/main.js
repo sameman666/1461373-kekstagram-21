@@ -143,13 +143,8 @@ const onBigPictureEscPress = (evt) => {
 
 const addListenersToPhotos = () => {
   for (let i = 0; i < photos.length; i++) {
-    document.querySelector(`[src="photos/${i + 1}.jpg"]`).addEventListener(`click`, () => {
+    document.querySelectorAll(`a.picture`)[i].addEventListener(`click`, () => {
       showBigPhoto(photos[i]);
-    });
-    document.querySelector(`[src="photos/${i + 1}.jpg"]`).parentNode.addEventListener(`keydown`, (evt) => {
-      if (evt.key === `Enter`) {
-        showBigPhoto(photos[i]);
-      }
     });
   }
 };
