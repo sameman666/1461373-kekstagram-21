@@ -141,15 +141,13 @@ const onBigPictureEscPress = (evt) => {
   }
 };
 
-const addListenersToPhotos = () => {
-  for (let i = 0; i < photos.length; i++) {
-    document.querySelectorAll(`a.picture`)[i].addEventListener(`click`, () => {
-      showBigPhoto(photos[i]);
-    });
-  }
+const addListenersToPhotos = (data) => {
+  document.querySelectorAll(`a.picture`).forEach((element, index) => element.addEventListener(`click`, () => {
+    showBigPhoto(data[index]);
+  }));
 };
 
-addListenersToPhotos();
+addListenersToPhotos(photos);
 
 // Открытие и закрытие изображения
 
