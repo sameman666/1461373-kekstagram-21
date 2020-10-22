@@ -66,7 +66,7 @@ const generatePhotosArray = () => {
     photos.push(
         {
           url: `photos/${i}.jpg`,
-          description: ``,
+          description: `Описание фотографии`,
           likes: `${getRandomInt(15, 200)}`,
           comments: getRandomComments(),
         }
@@ -90,6 +90,7 @@ const generatePhotos = (data) => {
 generatePhotos(photos);
 
 const bigPicture = document.querySelector(`.big-picture`);
+const bigPictureCloseButton = document.querySelector(`.big-picture__cancel`);
 const bigPictureImg = bigPicture.querySelector(`img`);
 const bigPictureLikes = bigPicture.querySelector(`.likes-count`);
 const bigPictureCommentsCount = bigPicture.querySelector(`.comments-count`);
@@ -106,6 +107,7 @@ const showBigPhoto = (data) => {
   bigPictureImg.src = data.url;
   bigPictureLikes.textContent = data.likes;
   bigPictureCommentsCount.textContent = data.comments.length;
+  document.addEventListener(`keydown`, onBigPictureEscPress);
 
   for (let i = 0; i < data.comments.length; i++) {
     const newComment = bigPictureComment.cloneNode(true);
@@ -121,6 +123,31 @@ const showBigPhoto = (data) => {
   commentsList.innerHTML = ``;
   commentsList.appendChild(fragment);
 };
+
+const closeBigPhoto = () => {
+  bigPicture.classList.add(`hidden`);
+  document.querySelector(`body`).classList.remove(`modal-open`);
+  document.removeEventListener(`keydown`, onBigPictureEscPress);
+};
+
+bigPictureCloseButton.addEventListener(`click`, () => {
+  closeBigPhoto();
+});
+
+const onBigPictureEscPress = (evt) => {
+  evt.preventDefault();
+  if (evt.key === `Escape`) {
+    closeBigPhoto();
+  }
+};
+
+const addListenersToPhotos = (data) => {
+  document.querySelectorAll(`a.picture`).forEach((element, index) => element.addEventListener(`click`, () => {
+    showBigPhoto(data[index]);
+  }));
+};
+
+addListenersToPhotos(photos);
 
 // Открытие и закрытие изображения
 
@@ -138,7 +165,7 @@ uploadFileButton.addEventListener(`change`, () => {
 const onEditorEscPress = (evt) => {
   if (evt.key === `Escape`) {
     evt.preventDefault();
-    if (evt.target !== hashtagInput || evt.target !== commentInput) {
+    if (evt.target !== hashtagInput && evt.target !== commentInput) {
       closeImgEditor();
     }
   }
