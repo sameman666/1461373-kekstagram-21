@@ -4,64 +4,100 @@
   const DEFAULT_EFFECT_VALUE = 100;
   const EFFECT_LEVEL_MAX = 3;
   const EFFECT_LEVEL_MIN = 1;
-  const effectChrome = window.editor.imgEditor.querySelector(`#effect-chrome`);
-  const effectSepia = window.editor.imgEditor.querySelector(`#effect-sepia`);
-  const effectMarvin = window.editor.imgEditor.querySelector(`#effect-marvin`);
-  const effectPhobos = window.editor.imgEditor.querySelector(`#effect-phobos`);
-  const effectHeat = window.editor.imgEditor.querySelector(`#effect-heat`);
-  let currentEffect = window.editor.DEFAULT_EFFECT;
+  const effectChrome = window.redactor.imgEditor.querySelector(`#effect-chrome`);
+  const effectSepia = window.redactor.imgEditor.querySelector(`#effect-sepia`);
+  const effectMarvin = window.redactor.imgEditor.querySelector(`#effect-marvin`);
+  const effectPhobos = window.redactor.imgEditor.querySelector(`#effect-phobos`);
+  const effectHeat = window.redactor.imgEditor.querySelector(`#effect-heat`);
+  const effectLevelBar = window.redactor.imgEditor.querySelector(`.effect-level__line`);
+  const effectLevelDepth = window.redactor.imgEditor.querySelector(`.effect-level__depth`);
+  let currentEffect = window.redactor.DEFAULT_EFFECT;
 
-  window.editor.effectLevel.classList.add(`hidden`);
+  window.redactor.effectLevel.classList.add(`hidden`);
 
   const applyEffect = (effect) => {
     applyImgFilter(``);
     setEffectValue(DEFAULT_EFFECT_VALUE);
-    if (currentEffect !== window.editor.DEFAULT_EFFECT) {
-      window.editor.imgEditorPreview.classList.remove(currentEffect);
+    setEffectPinPosition(DEFAULT_EFFECT_VALUE);
+    if (currentEffect !== window.redactor.DEFAULT_EFFECT) {
+      window.redactor.imgEditorPreview.classList.remove(currentEffect);
     }
-    if (effect !== window.editor.DEFAULT_EFFECT) {
-      window.editor.imgEditorPreview.classList.add(effect);
+    if (effect !== window.redactor.DEFAULT_EFFECT) {
+      window.redactor.imgEditorPreview.classList.add(effect);
     }
     currentEffect = effect;
-    window.editor.effectLevel.classList.toggle(`hidden`, currentEffect === window.editor.DEFAULT_EFFECT);
+    window.redactor.effectLevel.classList.toggle(`hidden`, currentEffect === window.redactor.DEFAULT_EFFECT);
   };
-  window.applyEffect = applyEffect;
 
-  window.editor.effectsList.addEventListener(`change`, (evt) => {
+  window.redactor.effectsList.addEventListener(`change`, (evt) => {
     applyEffect(`effects__preview--${evt.target.value}`);
   });
 
-  const effectLevelPin = window.editor.imgEditor.querySelector(`.effect-level__pin`);
-  const effectLevelValue = window.editor.imgEditor.querySelector(`.effect-level__value`);
+  const effectLevelPin = window.redactor.imgEditor.querySelector(`.effect-level__pin`);
+  const effectLevelValue = window.redactor.imgEditor.querySelector(`.effect-level__value`);
 
   const applyImgFilter = (value) => {
-    window.editor.imgEditorPreview.style.filter = value;
+    window.redactor.imgEditorPreview.style.filter = value;
   };
 
   const setEffectValue = (value) => {
     effectLevelValue.value = value;
   };
 
-  effectLevelPin.addEventListener(`mouseup`, () => {
-    const pinPosition = effectLevelPin.offsetLeft / effectLevelPin.offsetParent.offsetWidth;
-    setEffectValue(Math.round(pinPosition * 100));
-    switch (true) {
-      case effectChrome.checked:
-        applyImgFilter(`grayscale(${pinPosition})`);
-        break;
-      case effectSepia.checked:
-        applyImgFilter(`sepia(${pinPosition})`);
-        break;
-      case effectMarvin.checked:
-        applyImgFilter(`invert(${pinPosition * 100}%)`);
-        break;
-      case effectPhobos.checked:
-        applyImgFilter(`blur(${pinPosition * EFFECT_LEVEL_MAX}px)`);
-        break;
-      case effectHeat.checked:
-        applyImgFilter(`brightness(${(EFFECT_LEVEL_MAX - EFFECT_LEVEL_MIN) * pinPosition + EFFECT_LEVEL_MIN})`);
-        break;
-    }
+  const getPinOffsetOfInPercent = (value) => {
+    const valueInRange = Math.min(effectLevelBar.offsetWidth, Math.max(0, value));
+    return valueInRange * 100 / effectLevelBar.offsetWidth;
+  };
+
+  const setEffectPinPosition = (position) => {
+    effectLevelPin.style.left = position + `%`;
+    effectLevelDepth.style.width = position + `%`;
+  };
+
+  effectLevelPin.addEventListener(`mousedown`, (evt) => {
+    evt.preventDefault();
+
+    let startPosition = evt.clientX;
+
+    const onMouseMove = (moveEvt) => {
+      moveEvt.preventDefault();
+
+      const shift = startPosition - moveEvt.clientX;
+      const newPosition = effectLevelPin.offsetLeft - shift;
+      const newOffset = getPinOffsetOfInPercent(newPosition);
+      setEffectPinPosition(newOffset);
+      startPosition = moveEvt.clientX;
+
+      setEffectValue(Math.round(newOffset));
+      switch (true) {
+        case effectChrome.checked:
+          applyImgFilter(`grayscale(${newOffset / 100})`);
+          break;
+        case effectSepia.checked:
+          applyImgFilter(`sepia(${newOffset / 100})`);
+          break;
+        case effectMarvin.checked:
+          applyImgFilter(`invert(${newOffset}%)`);
+          break;
+        case effectPhobos.checked:
+          applyImgFilter(`blur(${newOffset / 100 * EFFECT_LEVEL_MAX}px)`);
+          break;
+        case effectHeat.checked:
+          applyImgFilter(`brightness(${(EFFECT_LEVEL_MAX - EFFECT_LEVEL_MIN) * newOffset / 100 + EFFECT_LEVEL_MIN})`);
+          break;
+      }
+    };
+
+    const onMouseUp = (upEvt) => {
+      upEvt.preventDefault();
+      document.removeEventListener(`mousemove`, onMouseMove);
+      document.removeEventListener(`mouseup`, onMouseUp);
+    };
+
+    document.addEventListener(`mousemove`, onMouseMove);
+    document.addEventListener(`mouseup`, onMouseUp);
   });
+
+  window.applyEffect = applyEffect;
 })();
 
