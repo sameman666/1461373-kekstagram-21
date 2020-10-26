@@ -72,7 +72,7 @@
     }
   });
 
-  window.editor = {
+  window.redactor = {
     imgEditor,
     hashtagInput,
     DEFAULT_EFFECT,
