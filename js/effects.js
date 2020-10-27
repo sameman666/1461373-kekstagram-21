@@ -4,40 +4,40 @@
   const DEFAULT_EFFECT_VALUE = 100;
   const EFFECT_LEVEL_MAX = 3;
   const EFFECT_LEVEL_MIN = 1;
-  const effectChrome = window.redactor.imgEditor.querySelector(`#effect-chrome`);
-  const effectSepia = window.redactor.imgEditor.querySelector(`#effect-sepia`);
-  const effectMarvin = window.redactor.imgEditor.querySelector(`#effect-marvin`);
-  const effectPhobos = window.redactor.imgEditor.querySelector(`#effect-phobos`);
-  const effectHeat = window.redactor.imgEditor.querySelector(`#effect-heat`);
-  const effectLevelBar = window.redactor.imgEditor.querySelector(`.effect-level__line`);
-  const effectLevelDepth = window.redactor.imgEditor.querySelector(`.effect-level__depth`);
-  let currentEffect = window.redactor.DEFAULT_EFFECT;
+  const effectChrome = window.modal.imgEditor.querySelector(`#effect-chrome`);
+  const effectSepia = window.modal.imgEditor.querySelector(`#effect-sepia`);
+  const effectMarvin = window.modal.imgEditor.querySelector(`#effect-marvin`);
+  const effectPhobos = window.modal.imgEditor.querySelector(`#effect-phobos`);
+  const effectHeat = window.modal.imgEditor.querySelector(`#effect-heat`);
+  const effectLevelBar = window.modal.imgEditor.querySelector(`.effect-level__line`);
+  const effectLevelDepth = window.modal.imgEditor.querySelector(`.effect-level__depth`);
+  let currentEffect = window.modal.DEFAULT_EFFECT;
 
-  window.redactor.effectLevel.classList.add(`hidden`);
+  window.modal.effectLevel.classList.add(`hidden`);
 
   const applyEffect = (effect) => {
     applyImgFilter(``);
     setEffectValue(DEFAULT_EFFECT_VALUE);
     setEffectPinPosition(DEFAULT_EFFECT_VALUE);
-    if (currentEffect !== window.redactor.DEFAULT_EFFECT) {
-      window.redactor.imgEditorPreview.classList.remove(currentEffect);
+    if (currentEffect !== window.modal.DEFAULT_EFFECT) {
+      window.modal.imgEditorPreview.classList.remove(currentEffect);
     }
-    if (effect !== window.redactor.DEFAULT_EFFECT) {
-      window.redactor.imgEditorPreview.classList.add(effect);
+    if (effect !== window.modal.DEFAULT_EFFECT) {
+      window.modal.imgEditorPreview.classList.add(effect);
     }
     currentEffect = effect;
-    window.redactor.effectLevel.classList.toggle(`hidden`, currentEffect === window.redactor.DEFAULT_EFFECT);
+    window.modal.effectLevel.classList.toggle(`hidden`, currentEffect === window.modal.DEFAULT_EFFECT);
   };
 
-  window.redactor.effectsList.addEventListener(`change`, (evt) => {
+  window.modal.effectsList.addEventListener(`change`, (evt) => {
     applyEffect(`effects__preview--${evt.target.value}`);
   });
 
-  const effectLevelPin = window.redactor.imgEditor.querySelector(`.effect-level__pin`);
-  const effectLevelValue = window.redactor.imgEditor.querySelector(`.effect-level__value`);
+  const effectLevelPin = window.modal.imgEditor.querySelector(`.effect-level__pin`);
+  const effectLevelValue = window.modal.imgEditor.querySelector(`.effect-level__value`);
 
   const applyImgFilter = (value) => {
-    window.redactor.imgEditorPreview.style.filter = value;
+    window.modal.imgEditorPreview.style.filter = value;
   };
 
   const setEffectValue = (value) => {

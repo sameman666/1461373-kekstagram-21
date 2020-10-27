@@ -53,11 +53,11 @@
     }
   };
 
-  const addListenersToPhotos = (data) => {
+  const successHandler = (data) => {
     document.querySelectorAll(`a.picture`).forEach((element, index) => element.addEventListener(`click`, () => {
       showBigPhoto(data[index]);
     }));
   };
 
-  addListenersToPhotos(window.data.photos);
+  window.load(successHandler, window.gallery.errorHandler);
 })();
