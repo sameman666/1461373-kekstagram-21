@@ -53,11 +53,11 @@
     }
   };
 
-  const successHandler = (data) => {
+  const onSuccess = (data) => {
     document.querySelectorAll(`a.picture`).forEach((element, index) => element.addEventListener(`click`, () => {
       showBigPhoto(data[index]);
     }));
   };
 
-  window.load(successHandler, window.gallery.errorHandler);
+  window.load(onSuccess, window.gallery.onError);
 })();
