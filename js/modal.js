@@ -5,13 +5,16 @@
   const SCALE_STEP = 25;
   const MIN_SCALE_VALUE = 25;
   const MAX_SCALE_VALUE = 100;
+  const DEFAULT_EFFECT = `effects__preview--none`;
   const uploadFileButton = document.querySelector(`#upload-file`);
   const imgEditor = document.querySelector(`.img-upload__overlay`);
   const hashtagInput = imgEditor.querySelector(`.text__hashtags`);
   const commentInput = imgEditor.querySelector(`.text__description`);
   const closeImgEditorButton = document.querySelector(`#upload-cancel`);
-  const DEFAULT_EFFECT = `effects__preview--none`;
-
+  const successMessageTemplate = document.querySelector(`#success`).content.querySelector(`.success`);
+  const errorMessageTemplate = document.querySelector(`#error`).content.querySelector(`.error`);
+  const main = document.querySelector(`main`);
+  const form = document.querySelector(`.img-upload__form`);
 
   uploadFileButton.addEventListener(`change`, () => {
     imgEditor.classList.remove(`hidden`);
@@ -70,6 +73,74 @@
       scaleValue = scaleValue + SCALE_STEP;
       applySize();
     }
+  });
+
+  const showSuccessMessage = () => {
+    const element = successMessageTemplate.cloneNode(true);
+    main.appendChild(element);
+    const successMessagePopup = main.querySelector(`.success`);
+    const closeButton = successMessagePopup.querySelector(`.success__button`);
+    closeButton.addEventListener(`click`, () => {
+      main.removeChild(element);
+    });
+
+    const onSuccessPopupEscPress = (evt) => {
+      if (evt.key === `Escape`) {
+        evt.preventDefault();
+        main.removeChild(element);
+        document.removeEventListener(`keydown`, onSuccessPopupEscPress);
+      }
+    };
+
+    const clickOutsidePopup = (evt) => {
+      if (evt.target === successMessagePopup) {
+        main.removeChild(element);
+      }
+    };
+
+    document.addEventListener(`keydown`, onSuccessPopupEscPress);
+    document.addEventListener(`click`, clickOutsidePopup);
+  };
+
+  const showErrorMessage = () => {
+    const element = errorMessageTemplate.cloneNode(true);
+    main.appendChild(element);
+    const errorMessagePopup = main.querySelector(`.error`);
+    const closeButton = errorMessagePopup.querySelector(`.error__button`);
+    closeButton.addEventListener(`click`, () => {
+      main.removeChild(element);
+    });
+
+    const onErrorPopupEscPress = (evt) => {
+      if (evt.key === `Escape`) {
+        evt.preventDefault();
+        main.removeChild(element);
+        document.removeEventListener(`keydown`, onErrorPopupEscPress);
+      }
+    };
+
+    const clickOutsidePopup = (evt) => {
+      if (evt.target === errorMessagePopup) {
+        main.removeChild(element);
+      }
+    };
+
+    document.addEventListener(`keydown`, onErrorPopupEscPress);
+    document.addEventListener(`click`, clickOutsidePopup);
+  };
+
+  form.addEventListener(`submit`, (evt) => {
+    window.upload(new FormData(form),
+        () => {
+          closeImgEditor();
+          showSuccessMessage();
+        },
+        () => {
+          closeImgEditor();
+          showErrorMessage();
+        }
+    );
+    evt.preventDefault();
   });
 
   window.modal = {
