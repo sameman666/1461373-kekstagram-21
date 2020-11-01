@@ -75,70 +75,51 @@
     }
   });
 
-  const showSuccessMessage = () => {
-    const element = successMessageTemplate.cloneNode(true);
+  const showMessage = (template) => {
+    const element = template.cloneNode(true);
     main.appendChild(element);
-    const successMessagePopup = main.querySelector(`.success`);
-    const closeButton = successMessagePopup.querySelector(`.success__button`);
+    const closeButton = element.querySelector(`.success__button, .error__button`);
+
+    const removeListeners = () => {
+      document.removeEventListener(`keydown`, onPopupEscPress);
+      document.removeEventListener(`click`, clickOutsidePopup);
+    };
+
     closeButton.addEventListener(`click`, () => {
       main.removeChild(element);
+      removeListeners();
     });
 
-    const onSuccessPopupEscPress = (evt) => {
+    const onPopupEscPress = (evt) => {
       if (evt.key === `Escape`) {
         evt.preventDefault();
         main.removeChild(element);
-        document.removeEventListener(`keydown`, onSuccessPopupEscPress);
+        removeListeners();
       }
     };
 
     const clickOutsidePopup = (evt) => {
-      if (evt.target === successMessagePopup) {
+      if (evt.target === element) {
         main.removeChild(element);
+        removeListeners();
       }
     };
 
-    document.addEventListener(`keydown`, onSuccessPopupEscPress);
-    document.addEventListener(`click`, clickOutsidePopup);
-  };
-
-  const showErrorMessage = () => {
-    const element = errorMessageTemplate.cloneNode(true);
-    main.appendChild(element);
-    const errorMessagePopup = main.querySelector(`.error`);
-    const closeButton = errorMessagePopup.querySelector(`.error__button`);
-    closeButton.addEventListener(`click`, () => {
-      main.removeChild(element);
-    });
-
-    const onErrorPopupEscPress = (evt) => {
-      if (evt.key === `Escape`) {
-        evt.preventDefault();
-        main.removeChild(element);
-        document.removeEventListener(`keydown`, onErrorPopupEscPress);
-      }
-    };
-
-    const clickOutsidePopup = (evt) => {
-      if (evt.target === errorMessagePopup) {
-        main.removeChild(element);
-      }
-    };
-
-    document.addEventListener(`keydown`, onErrorPopupEscPress);
+    document.addEventListener(`keydown`, onPopupEscPress);
     document.addEventListener(`click`, clickOutsidePopup);
   };
 
   form.addEventListener(`submit`, (evt) => {
-    window.upload(new FormData(form),
+    window.load(
         () => {
           closeImgEditor();
-          showSuccessMessage();
+          showMessage(successMessageTemplate);
         },
         () => {
           closeImgEditor();
-          showErrorMessage();
-        }
+          showMessage(errorMessageTemplate);
+        },
+        new FormData(form)
     );
     evt.preventDefault();
   });
