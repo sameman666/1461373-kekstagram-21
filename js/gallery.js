@@ -7,6 +7,11 @@
   const pictures = document.querySelector(`.pictures`);
 
   const onSuccess = (data) => {
+    renderPhotos(data);
+    window.filter(data);
+  };
+
+  const renderPhotos = (data) => {
     for (let i = 0; i < data.length; i++) {
       const element = template.cloneNode(true);
       element.querySelector(`img`).src = data[i].url;
@@ -15,6 +20,9 @@
       fragment.appendChild(element);
     }
     pictures.appendChild(fragment);
+    document.querySelectorAll(`a.picture`).forEach((element, index) => element.addEventListener(`click`, () => {
+      window.preview(data[index]);
+    }));
   };
 
   const onError = (errorMessage) => {
@@ -26,6 +34,9 @@
 
   window.load(onSuccess, onError);
 
-  window.gallery = onError;
+  window.gallery = {
+    onError,
+    onSuccess,
+    renderPhotos,
+  };
 })();
-
