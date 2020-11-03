@@ -82,7 +82,7 @@
 
     const removeListeners = () => {
       document.removeEventListener(`keydown`, onPopupEscPress);
-      document.removeEventListener(`click`, clickOutsidePopup);
+      document.removeEventListener(`click`, onOutsidePopupClick);
     };
 
     closeButton.addEventListener(`click`, () => {
@@ -98,7 +98,7 @@
       }
     };
 
-    const clickOutsidePopup = (evt) => {
+    const onOutsidePopupClick = (evt) => {
       if (evt.target === element) {
         main.removeChild(element);
         removeListeners();
@@ -106,7 +106,7 @@
     };
 
     document.addEventListener(`keydown`, onPopupEscPress);
-    document.addEventListener(`click`, clickOutsidePopup);
+    document.addEventListener(`click`, onOutsidePopupClick);
   };
 
   form.addEventListener(`submit`, (evt) => {
