@@ -35,7 +35,7 @@
       window.fragment.appendChild(newComment);
     };
 
-    commentsLoader.classList.toggle(`hidden`, (data.comments.length <= 5));
+    commentsLoader.classList.toggle(`hidden`, (data.comments.length <= MAX_COMMENTS_AMOUNT));
 
     if (data.comments.length < MAX_COMMENTS_AMOUNT) {
       for (let i = 0; i < data.comments.length; i++) {
