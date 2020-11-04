@@ -1,20 +1,18 @@
 'use strict';
 
 (() => {
-
+  const RANDOM_PHOTOS_AMOUNT = 10;
   const imgFilters = document.querySelector(`.img-filters`);
   const randomPhotosButton = imgFilters.querySelector(`#filter-random`);
   const discussedPhotosButton = imgFilters.querySelector(`#filter-discussed`);
   const defaultPhotosButton = imgFilters.querySelector(`#filter-default`);
-  const RANDOM_PHOTOS_AMOUNT = 10;
-
 
   const getRandomElement = (data) => {
     const randomElementIndex = Math.floor(Math.random() * data.length);
     return data[randomElementIndex];
   };
 
-  const filter = (photos) => {
+  const makeFiltration = (photos) => {
     imgFilters.classList.remove(`img-filters--inactive`);
 
     const changeActiveButton = (button) => {
@@ -42,7 +40,7 @@
       changeActiveButton(randomPhotosButton);
       const randomPhotos = [];
       while (randomPhotos.length < RANDOM_PHOTOS_AMOUNT) {
-        let randomPhoto = getRandomElement(photos);
+        const randomPhoto = getRandomElement(photos);
         if (!randomPhotos.includes(randomPhoto)) {
           randomPhotos.push(randomPhoto);
         }
@@ -64,5 +62,5 @@
     });
   };
 
-  window.filter = filter;
+  window.filter = makeFiltration;
 })();
