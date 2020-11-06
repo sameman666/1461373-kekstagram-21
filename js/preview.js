@@ -1,87 +1,84 @@
 'use strict';
 
-(() => {
-  const MAX_COMMENTS_AMOUNT = 5;
-  const bigPicture = document.querySelector(`.big-picture`);
-  const bigPictureCloseButton = document.querySelector(`.big-picture__cancel`);
-  const bigPictureImg = bigPicture.querySelector(`img`);
-  const bigPictureLikes = bigPicture.querySelector(`.likes-count`);
-  const bigPictureCommentsCount = bigPicture.querySelector(`.comments-count`);
-  const commentsList = bigPicture.querySelector(`.social__comments`);
-  const bigPictureComment = bigPicture.querySelector(`.social__comment`);
-  const commentCountBlock = bigPicture.querySelector(`.social__comment-count`);
-  const commentsLoader = bigPicture.querySelector(`.comments-loader`);
+const MAX_COMMENTS_AMOUNT = 5;
+const bigPicture = document.querySelector(`.big-picture`);
+const bigPictureCloseButton = document.querySelector(`.big-picture__cancel`);
+const bigPictureImg = bigPicture.querySelector(`img`);
+const bigPictureLikes = bigPicture.querySelector(`.likes-count`);
+const bigPictureCommentsCount = bigPicture.querySelector(`.comments-count`);
+const commentsList = bigPicture.querySelector(`.social__comments`);
+const bigPictureComment = bigPicture.querySelector(`.social__comment`);
+const commentCountBlock = bigPicture.querySelector(`.social__comment-count`);
+const commentsLoader = bigPicture.querySelector(`.comments-loader`);
 
-  const showBigPhoto = (data) => {
-    bigPicture.classList.remove(`hidden`);
-    document.querySelector(`body`).classList.add(`modal-open`);
-    commentCountBlock.classList.add(`hidden`);
-    bigPictureImg.src = data.url;
-    bigPictureLikes.textContent = data.likes;
-    bigPictureCommentsCount.textContent = data.comments.length;
-    document.addEventListener(`keydown`, onBigPictureEscPress);
+const showBigPhoto = (data) => {
+  bigPicture.classList.remove(`hidden`);
+  document.querySelector(`body`).classList.add(`modal-open`);
+  commentCountBlock.classList.add(`hidden`);
+  bigPictureImg.src = data.url;
+  bigPictureLikes.textContent = data.likes;
+  bigPictureCommentsCount.textContent = data.comments.length;
+  document.addEventListener(`keydown`, onBigPictureEscPress);
 
-    commentsList.innerHTML = ``;
+  commentsList.innerHTML = ``;
 
-    const renderComments = (value) => {
-      const newComment = bigPictureComment.cloneNode(true);
-      const newCommentImg = newComment.querySelector(`img`);
-      const newCommentText = newComment.querySelector(`.social__text`);
-      const bigPictureDescription = bigPicture.querySelector(`.social__caption`);
-      bigPictureDescription.textContent = data.description;
-      newCommentImg.src = data.comments[value].avatar;
-      newCommentImg.alt = data.comments[value].name;
-      newCommentText.textContent = data.comments[value].message;
-      window.fragment.appendChild(newComment);
-    };
+  const renderComments = (value) => {
+    const newComment = bigPictureComment.cloneNode(true);
+    const newCommentImg = newComment.querySelector(`img`);
+    const newCommentText = newComment.querySelector(`.social__text`);
+    const bigPictureDescription = bigPicture.querySelector(`.social__caption`);
+    bigPictureDescription.textContent = data.description;
+    newCommentImg.src = data.comments[value].avatar;
+    newCommentImg.alt = data.comments[value].name;
+    newCommentText.textContent = data.comments[value].message;
+    window.fragment.appendChild(newComment);
+  };
 
-    commentsLoader.classList.toggle(`hidden`, (data.comments.length <= MAX_COMMENTS_AMOUNT));
+  const commentsToRender = Math.min(data.comments.length, MAX_COMMENTS_AMOUNT);
+  for (let i = 0; i < commentsToRender; i++) {
+    renderComments(i);
+  }
 
-    if (data.comments.length < MAX_COMMENTS_AMOUNT) {
-      for (let i = 0; i < data.comments.length; i++) {
+  commentsList.appendChild(window.fragment);
+  let currentCommentsAmount = MAX_COMMENTS_AMOUNT;
+
+  const hideCommentsLoader = () => {
+    commentsLoader.classList.toggle(`hidden`, (data.comments.length <= currentCommentsAmount));
+  };
+
+  window.onCommentsLoaderClick = () => {
+    if (currentCommentsAmount < data.comments.length + MAX_COMMENTS_AMOUNT) {
+      const minCommentsAmount = Math.min(currentCommentsAmount + MAX_COMMENTS_AMOUNT, data.comments.length);
+      for (let i = currentCommentsAmount; i < minCommentsAmount; i++) {
         renderComments(i);
       }
-    } else {
-      for (let i = 0; i < MAX_COMMENTS_AMOUNT; i++) {
-        renderComments(i);
-      }
+      commentsList.appendChild(window.fragment);
+      currentCommentsAmount = currentCommentsAmount + MAX_COMMENTS_AMOUNT;
+      hideCommentsLoader();
     }
-    commentsList.appendChild(window.fragment);
-    let currentCommentsAmount;
-    currentCommentsAmount = MAX_COMMENTS_AMOUNT;
-
-    const addMoreComments = () => {
-      if (currentCommentsAmount < data.comments.length + MAX_COMMENTS_AMOUNT) {
-        let minCommentsAmount = Math.min(currentCommentsAmount + MAX_COMMENTS_AMOUNT, data.comments.length);
-        for (let i = currentCommentsAmount; i < minCommentsAmount; i++) {
-          renderComments(i);
-          commentsList.appendChild(window.fragment);
-        }
-        currentCommentsAmount = currentCommentsAmount + MAX_COMMENTS_AMOUNT;
-      }
-    };
-
-    window.addMoreComments = addMoreComments;
-    commentsLoader.addEventListener(`click`, window.addMoreComments);
   };
 
-  const closeBigPhoto = () => {
-    bigPicture.classList.add(`hidden`);
-    document.querySelector(`body`).classList.remove(`modal-open`);
-    document.removeEventListener(`keydown`, onBigPictureEscPress);
-    commentsLoader.removeEventListener(`click`, window.addMoreComments); // Пока не знаю как удалить обработчик по другому :(
-  };
+  hideCommentsLoader();
 
-  bigPictureCloseButton.addEventListener(`click`, () => {
+  commentsLoader.addEventListener(`click`, window.onCommentsLoaderClick);
+};
+
+const closeBigPhoto = () => {
+  bigPicture.classList.add(`hidden`);
+  document.querySelector(`body`).classList.remove(`modal-open`);
+  document.removeEventListener(`keydown`, onBigPictureEscPress);
+  commentsLoader.removeEventListener(`click`, window.onCommentsLoaderClick);
+};
+
+bigPictureCloseButton.addEventListener(`click`, () => {
+  closeBigPhoto();
+});
+
+const onBigPictureEscPress = (evt) => {
+  evt.preventDefault();
+  if (evt.key === `Escape`) {
     closeBigPhoto();
-  });
+  }
+};
 
-  const onBigPictureEscPress = (evt) => {
-    evt.preventDefault();
-    if (evt.key === `Escape`) {
-      closeBigPhoto();
-    }
-  };
-
-  window.preview = showBigPhoto;
-})();
+window.preview = showBigPhoto;
