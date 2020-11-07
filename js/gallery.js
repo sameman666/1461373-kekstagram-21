@@ -1,7 +1,6 @@
 'use strict';
 
 const fragment = document.createDocumentFragment();
-window.fragment = fragment;
 const template = document.querySelector(`#picture`).content.querySelector(`a`);
 const pictures = document.querySelector(`.pictures`);
 
@@ -37,4 +36,5 @@ window.gallery = {
   onError,
   onSuccess,
   renderPhotos,
+  fragment
 };

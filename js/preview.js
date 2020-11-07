@@ -31,7 +31,7 @@ const showBigPhoto = (data) => {
     newCommentImg.src = data.comments[value].avatar;
     newCommentImg.alt = data.comments[value].name;
     newCommentText.textContent = data.comments[value].message;
-    window.fragment.appendChild(newComment);
+    window.gallery.fragment.appendChild(newComment);
   };
 
   const commentsToRender = Math.min(data.comments.length, MAX_COMMENTS_AMOUNT);
@@ -39,7 +39,7 @@ const showBigPhoto = (data) => {
     renderComments(i);
   }
 
-  commentsList.appendChild(window.fragment);
+  commentsList.appendChild(window.gallery.fragment);
   let currentCommentsAmount = MAX_COMMENTS_AMOUNT;
 
   const hideCommentsLoader = () => {
@@ -52,7 +52,7 @@ const showBigPhoto = (data) => {
       for (let i = currentCommentsAmount; i < minCommentsAmount; i++) {
         renderComments(i);
       }
-      commentsList.appendChild(window.fragment);
+      commentsList.appendChild(window.gallery.fragment);
       currentCommentsAmount = currentCommentsAmount + MAX_COMMENTS_AMOUNT;
       hideCommentsLoader();
     }
