@@ -6,20 +6,21 @@ const pictures = document.querySelector(`.pictures`);
 
 const onSuccess = (data) => {
   renderPhotos(data);
-  window.filter(data);
+  window.makeFiltration(data);
 };
 
 const renderPhotos = (data) => {
   for (let i = 0; i < data.length; i++) {
     const element = template.cloneNode(true);
-    element.querySelector(`img`).src = data[i].url;
-    element.querySelector(`.picture__likes`).textContent = data[i].likes;
-    element.querySelector(`.picture__comments`).textContent = data[i].comments.length;
+    const {url, likes, comments} = data[i];
+    element.querySelector(`img`).src = url;
+    element.querySelector(`.picture__likes`).textContent = likes;
+    element.querySelector(`.picture__comments`).textContent = comments.length;
     fragment.appendChild(element);
   }
   pictures.appendChild(fragment);
   document.querySelectorAll(`a.picture`).forEach((element, index) => element.addEventListener(`click`, () => {
-    window.preview(data[index]);
+    window.showBigPhoto(data[index]);
   }));
 };
 

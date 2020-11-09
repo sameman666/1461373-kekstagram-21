@@ -1,9 +1,11 @@
 'use strict';
 
-const DEFAULT_SCALE_VALUE = 100;
-const SCALE_STEP = 25;
-const MIN_SCALE_VALUE = 25;
-const MAX_SCALE_VALUE = 100;
+const Scale = {
+  DEFAULT: 100,
+  STEP: 25,
+  MIN: 25,
+  MAX: 100
+};
 const DEFAULT_EFFECT = `effects__preview--none`;
 const uploadFileButton = document.querySelector(`#upload-file`);
 const imgEditor = document.querySelector(`.img-upload__overlay`);
@@ -17,11 +19,11 @@ const form = document.querySelector(`.img-upload__form`);
 
 uploadFileButton.addEventListener(`change`, () => {
   imgEditor.classList.remove(`hidden`);
-  document.querySelector(`body`).classList.add(`modal-open`);
-  document.addEventListener(`keydown`, onEditorEscPress);
+  document.body.classList.add(`modal-open`);
+  document.addEventListener(`keydown`, onDocumentKeyDown);
 });
 
-const onEditorEscPress = (evt) => {
+const onDocumentKeyDown = (evt) => {
   if (evt.key === `Escape`) {
     evt.preventDefault();
     if (evt.target !== hashtagInput && evt.target !== commentInput) {
@@ -32,9 +34,9 @@ const onEditorEscPress = (evt) => {
 
 const closeImgEditor = () => {
   imgEditor.classList.add(`hidden`);
-  document.querySelector(`body`).classList.remove(`modal-open`);
-  scaleValue = DEFAULT_SCALE_VALUE;
-  document.removeEventListener(`keydown`, onEditorEscPress);
+  document.body.classList.remove(`modal-open`);
+  scaleValue = Scale.DEFAULT;
+  document.removeEventListener(`keydown`, onDocumentKeyDown);
   applySize();
   window.applyEffect(DEFAULT_EFFECT);
   hashtagInput.setCustomValidity(``);
@@ -53,7 +55,7 @@ const scaleControlValue = imgEditor.querySelector(`.scale__control--value`);
 const imgEditorPreview = imgEditor.querySelector(`.img-upload__preview img`);
 const effectLevel = imgEditor.querySelector(`.img-upload__effect-level`);
 const effectsList = imgEditor.querySelector(`.effects__list`);
-let scaleValue = DEFAULT_SCALE_VALUE;
+let scaleValue = Scale.DEFAULT;
 
 const applySize = () => {
   imgEditorPreview.style.transform = `scale(${scaleValue / 100})`;
@@ -61,15 +63,15 @@ const applySize = () => {
 };
 
 scaleControlSmaller.addEventListener(`click`, () => {
-  if (scaleValue > MIN_SCALE_VALUE) {
-    scaleValue = scaleValue - SCALE_STEP;
+  if (scaleValue > Scale.MIN) {
+    scaleValue = scaleValue - Scale.STEP;
     applySize();
   }
 });
 
 scaleControlBigger.addEventListener(`click`, () => {
-  if (scaleValue < MAX_SCALE_VALUE) {
-    scaleValue = scaleValue + SCALE_STEP;
+  if (scaleValue < Scale.MAX) {
+    scaleValue = scaleValue + Scale.STEP;
     applySize();
   }
 });
@@ -80,8 +82,8 @@ const showMessage = (template) => {
   const closeButton = element.querySelector(`.success__button, .error__button`);
 
   const removeListeners = () => {
-    document.removeEventListener(`keydown`, onPopupEscPress);
-    document.removeEventListener(`click`, onOutsidePopupClick);
+    document.removeEventListener(`keydown`, onKeyDown);
+    document.removeEventListener(`click`, onDocumentClick);
   };
 
   closeButton.addEventListener(`click`, () => {
@@ -89,7 +91,7 @@ const showMessage = (template) => {
     removeListeners();
   });
 
-  const onPopupEscPress = (evt) => {
+  const onKeyDown = (evt) => {
     if (evt.key === `Escape`) {
       evt.preventDefault();
       main.removeChild(element);
@@ -97,15 +99,15 @@ const showMessage = (template) => {
     }
   };
 
-  const onOutsidePopupClick = (evt) => {
+  const onDocumentClick = (evt) => {
     if (evt.target === element) {
       main.removeChild(element);
       removeListeners();
     }
   };
 
-  document.addEventListener(`keydown`, onPopupEscPress);
-  document.addEventListener(`click`, onOutsidePopupClick);
+  document.addEventListener(`keydown`, onKeyDown);
+  document.addEventListener(`click`, onDocumentClick);
 };
 
 form.addEventListener(`submit`, (evt) => {

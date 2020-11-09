@@ -1,7 +1,9 @@
 'use strict';
 
-const URL_FOR_POST = `https://21.javascript.pages.academy/kekstagram`;
-const URL_FOR_GET = `https://21.javascript.pages.academy/kekstagram/data`;
+const Url = {
+  POST: `https://21.javascript.pages.academy/kekstagram`,
+  GET: `https://21.javascript.pages.academy/kekstagram/data`
+};
 const StatusCode = {
   OK: 200
 };
@@ -28,10 +30,10 @@ window.load = (onSuccess, onError, data) => {
   xhr.timeout = TIMEOUT_IN_MS;
 
   if (data) {
-    xhr.open(`POST`, URL_FOR_POST);
+    xhr.open(`POST`, Url.POST);
     xhr.send(data);
   } else {
-    xhr.open(`GET`, URL_FOR_GET);
+    xhr.open(`GET`, Url.GET);
     xhr.send();
   }
 };

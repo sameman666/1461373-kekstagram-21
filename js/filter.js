@@ -61,4 +61,4 @@ const makeFiltration = (photos) => {
   });
 };
 
-window.filter = makeFiltration;
+window.makeFiltration = makeFiltration;

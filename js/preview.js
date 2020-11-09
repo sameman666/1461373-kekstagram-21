@@ -11,46 +11,48 @@ const bigPictureComment = bigPicture.querySelector(`.social__comment`);
 const commentCountBlock = bigPicture.querySelector(`.social__comment-count`);
 const commentsLoader = bigPicture.querySelector(`.comments-loader`);
 
+const renderComments = (data, value) => {
+  const {description, comments} = data;
+  const newComment = bigPictureComment.cloneNode(true);
+  const newCommentImg = newComment.querySelector(`img`);
+  const newCommentText = newComment.querySelector(`.social__text`);
+  const bigPictureDescription = bigPicture.querySelector(`.social__caption`);
+  bigPictureDescription.textContent = description;
+  newCommentImg.src = comments[value].avatar;
+  newCommentImg.alt = comments[value].name;
+  newCommentText.textContent = comments[value].message;
+  window.gallery.fragment.appendChild(newComment);
+};
+
 const showBigPhoto = (data) => {
+  const {url, likes, comments} = data;
   bigPicture.classList.remove(`hidden`);
   document.querySelector(`body`).classList.add(`modal-open`);
   commentCountBlock.classList.add(`hidden`);
-  bigPictureImg.src = data.url;
-  bigPictureLikes.textContent = data.likes;
-  bigPictureCommentsCount.textContent = data.comments.length;
-  document.addEventListener(`keydown`, onBigPictureEscPress);
+  bigPictureImg.src = url;
+  bigPictureLikes.textContent = likes;
+  bigPictureCommentsCount.textContent = comments.length;
+  document.addEventListener(`keydown`, onDocumentKeyDown);
 
   commentsList.innerHTML = ``;
 
-  const renderComments = (value) => {
-    const newComment = bigPictureComment.cloneNode(true);
-    const newCommentImg = newComment.querySelector(`img`);
-    const newCommentText = newComment.querySelector(`.social__text`);
-    const bigPictureDescription = bigPicture.querySelector(`.social__caption`);
-    bigPictureDescription.textContent = data.description;
-    newCommentImg.src = data.comments[value].avatar;
-    newCommentImg.alt = data.comments[value].name;
-    newCommentText.textContent = data.comments[value].message;
-    window.gallery.fragment.appendChild(newComment);
-  };
-
-  const commentsToRender = Math.min(data.comments.length, MAX_COMMENTS_AMOUNT);
+  const commentsToRender = Math.min(comments.length, MAX_COMMENTS_AMOUNT);
   for (let i = 0; i < commentsToRender; i++) {
-    renderComments(i);
+    renderComments(data, i);
   }
 
   commentsList.appendChild(window.gallery.fragment);
   let currentCommentsAmount = MAX_COMMENTS_AMOUNT;
 
   const hideCommentsLoader = () => {
-    commentsLoader.classList.toggle(`hidden`, (data.comments.length <= currentCommentsAmount));
+    commentsLoader.classList.toggle(`hidden`, (comments.length <= currentCommentsAmount));
   };
 
   window.onCommentsLoaderClick = () => {
-    if (currentCommentsAmount < data.comments.length + MAX_COMMENTS_AMOUNT) {
-      const minCommentsAmount = Math.min(currentCommentsAmount + MAX_COMMENTS_AMOUNT, data.comments.length);
+    if (currentCommentsAmount < comments.length + MAX_COMMENTS_AMOUNT) {
+      const minCommentsAmount = Math.min(currentCommentsAmount + MAX_COMMENTS_AMOUNT, comments.length);
       for (let i = currentCommentsAmount; i < minCommentsAmount; i++) {
-        renderComments(i);
+        renderComments(data, i);
       }
       commentsList.appendChild(window.gallery.fragment);
       currentCommentsAmount = currentCommentsAmount + MAX_COMMENTS_AMOUNT;
@@ -66,7 +68,7 @@ const showBigPhoto = (data) => {
 const closeBigPhoto = () => {
   bigPicture.classList.add(`hidden`);
   document.querySelector(`body`).classList.remove(`modal-open`);
-  document.removeEventListener(`keydown`, onBigPictureEscPress);
+  document.removeEventListener(`keydown`, onDocumentKeyDown);
   commentsLoader.removeEventListener(`click`, window.onCommentsLoaderClick);
 };
 
@@ -74,11 +76,13 @@ bigPictureCloseButton.addEventListener(`click`, () => {
   closeBigPhoto();
 });
 
-const onBigPictureEscPress = (evt) => {
+const onDocumentKeyDown = (evt) => {
   evt.preventDefault();
   if (evt.key === `Escape`) {
     closeBigPhoto();
   }
 };
 
-window.preview = showBigPhoto;
+window.showBigPhoto = showBigPhoto;
+
+
