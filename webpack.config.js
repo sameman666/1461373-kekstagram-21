@@ -8,7 +8,8 @@ module.exports = {
     "./js/preview.js",
     "./js/modal.js",
     "./js/effects.js",
-    "./js/hashtags.js"
+    "./js/hashtags.js",
+    "./js/userpic.js",
   ],
   output: {
     filename: "bundle.js",

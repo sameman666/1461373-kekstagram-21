@@ -84,5 +84,3 @@ const onDocumentKeyDown = (evt) => {
 };
 
 window.showBigPhoto = showBigPhoto;
-
-
